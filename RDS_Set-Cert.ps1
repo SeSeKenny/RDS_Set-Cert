@@ -5,7 +5,7 @@ $d=get-date
 # $iss is the variable for the full issuer string, for example "CN=Me First Issuing CA, DC=me, DC=ca"
 $iss=''
 $validcerts=$certs | ? {$_.NotBefore -lt $d -and $_.NotAfter -gt $d -and $_.Issuer -eq $iss `
-	-and $_.SAN -match $regex}
+	-and $_.SAN -match $regex -and $_.HasPrivateKey -eq $true}
 $c=($validcerts | measure).count
 if ($c -ge 1) {
 	$ec=$validcerts | ? {$_.publickey.oid.friendlyname -eq 'ECC'}
