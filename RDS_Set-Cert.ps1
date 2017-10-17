@@ -7,8 +7,11 @@ $iss=''
 $validcerts=$certs | ? {$_.NotBefore -lt $d -and $_.NotAfter -gt $d -and $_.Issuer -eq $iss `
 	-and $_.SAN -match $regex}
 $c=($validcerts | measure).count
-if ($c -gt 1) {$thecert=$validcerts | sort notafter | select -Last 1}
-elseif ($c -eq 1) {$thecert=$validcerts[0]}
+if ($c -ge 1) {
+	$ec=$validcerts | ? {$_.publickey.oid.friendlyname -eq 'ECC'}
+	if ($ec) {$thecert=$ec | sort notafter | select -Last 1} `
+	else {$thecert=$validcerts | sort notafter | select -Last 1}
+	} `
 else {exit}
 $rdp=gwmi -Namespace root\cimv2\TerminalServices -Class Win32_TSGeneralSetting
 if ($thecert.thumbprint -eq $rdp.SSLCertificateSHA1Hash) {exit}
